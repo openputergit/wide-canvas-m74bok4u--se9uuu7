@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Library Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+    .modal {
+        transition: all 0.3s ease-in-out;
+    }
+    .department-card {
+        transition: transform 0.2s;
+    }
+    .department-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+<body class="bg-gray-100 min-h-screen">
+    <div id="mainContainer" class="container mx-auto p-4">
+        <!-- Login/Register Section -->
+        <div id="authSection" class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 mt-10">
+            <h1 class="text-2xl font-bold text-center mb-6">Virtual Library Management</h1>
+            <div class="space-y-4">
+                <input type="text" id="username" placeholder="Username" class="w-full p-2 border rounded">
+                <input type="password" id="password" placeholder="Password" class="w-full p-2 border rounded">
+                <div class="flex space-x-4">
+                    <button onclick="login()" class="w-1/2 bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Login</button>
+                    <button onclick="register()" class="w-1/2 bg-green-500 text-white py-2 rounded hover:bg-green-600">Register</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- User/Admin Selection -->
+        <div id="roleSelection" class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 mt-10 hidden">
+            <h2 class="text-xl font-bold text-center mb-6">Select Role</h2>
+            <div class="flex space-x-4">
+                <button onclick="selectRole('user')" class="w-1/2 bg-blue-500 text-white py-2 rounded hover:bg-blue-600">User</button>
+                <button onclick="selectRole('admin')" class="w-1/2 bg-green-500 text-white py-2 rounded hover:bg-green-600">Admin</button>
+            </div>
+        </div>
+
+        <!-- User Window -->
+        <div id="userWindow" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">User Dashboard</h2>
+                <button onclick="goBack()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                    <i class="bi bi-arrow-left"></i> Back
+                </button>
+            </div>
+            <button id="startVoiceChat" onclick="toggleVoiceChat()" class="bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-600 mb-6">
+                <i class="bi bi-mic-fill"></i> Start Voice Chat
+            </button>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Department Cards -->
+                <div class="department-card bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">Computer Engineering</h3>
+                    <p class="text-gray-600 mb-2">Location: Shelf A</p>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li>Data Structures (5 copies)</li>
+                        <li>Computer Networks (3 copies)</li>
+                        <li>Operating Systems (4 copies)</li>
+                    </ul>
+                </div>
+                <div class="department-card bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">Electrical Engineering</h3>
+                    <p class="text-gray-600 mb-2">Location: Shelf B</p>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li>Circuit Theory (6 copies)</li>
+                        <li>Power Systems (4 copies)</li>
+                        <li>Digital Electronics (5 copies)</li>
+                    </ul>
+                </div>
+                <div class="department-card bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">Mechanical Engineering</h3>
+                    <p class="text-gray-600 mb-2">Location: Shelf C</p>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li>Thermodynamics (4 copies)</li>
+                        <li>Machine Design (3 copies)</li>
+                        <li>Fluid Mechanics (5 copies)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Window -->
+        <div id="adminWindow" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex space-x-4">
+                    <button onclick="showAdminHome()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        <i class="bi bi-house-fill"></i> Home
+                    </button>
+                    <button onclick="showAdminMenu()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                        <i class="bi bi-list"></i> Menu
+                    </button>
+                </div>
+                <button onclick="goBack()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                    <i class="bi bi-arrow-left"></i> Back
+                </button>
+            </div>
+            <div id="adminHome" class="hidden">
+                <button onclick="toggleVoiceChat()" class="bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-600">
+                    <i class="bi bi-mic-fill"></i> Start Voice Chat
+                </button>
+            </div>
+            <div id="adminMenu" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <button onclick="showBookCount()" class="bg-white p-6 rounded-lg shadow-lg hover:bg-gray-50">
+                        <i class="bi bi-book text-2xl"></i>
+                        <h3 class="text-xl font-bold mt-2">Count Books</h3>
+                    </button>
+                    <button onclick="showAddRemoveBooks()" class="bg-white p-6 rounded-lg shadow-lg hover:bg-gray-50">
+                        <i class="bi bi-plus-slash-minus text-2xl"></i>
+                        <h3 class="text-xl font-bold mt-2">Add/Remove Books</h3>
+                    </button>
+                    <button onclick="showManageQuantities()" class="bg-white p-6 rounded-lg shadow-lg hover:bg-gray-50">
+                        <i class="bi bi-gear text-2xl"></i>
+                        <h3 class="text-xl font-bold mt-2">Manage Quantities</h3>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="adminPasswordModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 class="text-xl font-bold mb-4">Enter Admin Password</h2>
+            <input type="password" id="adminPassword" placeholder="Password" class="w-full p-2 border rounded mb-4">
+            <div class="flex justify-end space-x-4">
+                <button onclick="cancelAdminAccess()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancel</button>
+                <button onclick="verifyAdminPassword()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulated database
+        let books = {
+            computer: [
+                {name: "Data Structures", quantity: 5},
+                {name: "Computer Networks", quantity: 3},
+                {name: "Operating Systems", quantity: 4}
+            ],
+            electrical: [
+                {name: "Circuit Theory", quantity: 6},
+                {name: "Power Systems", quantity: 4},
+                {name: "Digital Electronics", quantity: 5}
+            ],
+            mechanical: [
+                {name: "Thermodynamics", quantity: 4},
+                {name: "Machine Design", quantity: 3},
+                {name: "Fluid Mechanics", quantity: 5}
+            ]
+        };
+
+        let isVoiceChatActive = false;
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (username && password) {
+                document.getElementById('authSection').classList.add('hidden');
+                document.getElementById('roleSelection').classList.remove('hidden');
+            }
+        }
+
+        function register() {
+            alert('Registration functionality would be implemented with backend integration');
+        }
+
+        function selectRole(role) {
+            if (role === 'admin') {
+                document.getElementById('adminPasswordModal').classList.remove('hidden');
+            } else {
+                document.getElementById('roleSelection').classList.add('hidden');
+                document.getElementById('userWindow').classList.remove('hidden');
+            }
+        }
+
+        function verifyAdminPassword() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === 'admin12') {
+                document.getElementById('adminPasswordModal').classList.add('hidden');
+                document.getElementById('roleSelection').classList.add('hidden');
+                document.getElementById('adminWindow').classList.remove('hidden');
+                showAdminHome();
+            } else {
+                alert('Incorrect admin password');
+            }
+        }
+
+        function cancelAdminAccess() {
+            document.getElementById('adminPasswordModal').classList.add('hidden');
+        }
+
+        function goBack() {
+            document.getElementById('userWindow').classList.add('hidden');
+            document.getElementById('adminWindow').classList.add('hidden');
+            document.getElementById('roleSelection').classList.remove('hidden');
+        }
+
+        function toggleVoiceChat() {
+            if (!isVoiceChatActive) {
+                alert('Voice chat activated! (Simulated) Ask about book locations.');
+                document.getElementById('startVoiceChat').innerHTML = '<i class="bi bi-mic-mute-fill"></i> End Voice Chat';
+                isVoiceChatActive = true;
+            } else {
+                document.getElementById('startVoiceChat').innerHTML = '<i class="bi bi-mic-fill"></i> Start Voice Chat';
+                isVoiceChatActive = false;
+            }
+        }
+
+        function showAdminHome() {
+            document.getElementById('adminHome').classList.remove('hidden');
+            document.getElementById('adminMenu').classList.add('hidden');
+        }
+
+        function showAdminMenu() {
+            document.getElementById('adminHome').classList.add('hidden');
+            document.getElementById('adminMenu').classList.remove('hidden');
+        }
+
+        function showBookCount() {
+            let message = 'Book Count:\n\n';
+            for (let dept in books) {
+                message += `${dept.charAt(0).toUpperCase() + dept.slice(1)} Department:\n`;
+                books[dept].forEach(book => {
+                    message += `${book.name}: ${book.quantity} copies\n`;
+                });
+                message += '\n';
+            }
+            alert(message);
+        }
+
+        function showAddRemoveBooks() {
+            const dept = prompt('Enter department (computer/electrical/mechanical):');
+            if (dept && books[dept.toLowerCase()]) {
+                const action = prompt('Enter action (add/remove):');
+                if (action) {
+                    const bookName = prompt('Enter book name:');
+                    if (bookName) {
+                        if (action.toLowerCase() === 'add') {
+                            books[dept.toLowerCase()].push({name: bookName, quantity: 1});
+                            alert('Book added successfully!');
+                        } else if (action.toLowerCase() === 'remove') {
+                            books[dept.toLowerCase()] = books[dept.toLowerCase()].filter(b => b.name !== bookName);
+                            alert('Book removed successfully!');
+                        }
+                    }
+                }
+            }
+        }
+
+        function showManageQuantities() {
+            const dept = prompt('Enter department (computer/electrical/mechanical):');
+            if (dept && books[dept.toLowerCase()]) {
+                const bookName = prompt('Enter book name:');
+                const book = books[dept.toLowerCase()].find(b => b.name === bookName);
+                if (book) {
+                    const action = prompt('Enter action (add/remove):');
+                    const quantity = parseInt(prompt('Enter quantity:'));
+                    if (action && !isNaN(quantity)) {
+                        if (action.toLowerCase() === 'add') {
+                            book.quantity += quantity;
+                        } else if (action.toLowerCase() === 'remove') {
+                            book.quantity = Math.max(0, book.quantity - quantity);
+                        }
+                        alert('Quantity updated successfully!');
+                    }
+                }
+            }
+        }
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
